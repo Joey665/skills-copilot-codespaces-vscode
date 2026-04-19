@@ -18,6 +18,7 @@ REQUIRED_DOCUMENTS = {
     "photo",
     "financial_proof",
 }
+REQUIRED_COLUMNS = {"applicant_name", "appointment_date", "documents_submitted"}
 
 
 def parse_documents(raw_value: str) -> set[str]:
@@ -41,6 +42,10 @@ def process_applications(input_file: Path, output_file: Path) -> None:
         reader = csv.DictReader(infile)
         if not reader.fieldnames:
             raise ValueError("Input CSV is missing column headers or is empty.")
+        missing_columns = REQUIRED_COLUMNS - set(reader.fieldnames)
+        if missing_columns:
+            missing = ", ".join(sorted(missing_columns))
+            raise ValueError(f"Input CSV is missing required columns: {missing}")
         records = []
 
         for row in reader:
