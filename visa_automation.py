@@ -29,6 +29,8 @@ def determine_action(appointment_date: date, missing_documents: set[str]) -> str
         return "REQUEST_DOCUMENTS"
 
     days_until_appointment = (appointment_date - date.today()).days
+    if days_until_appointment < 0:
+        return "REVIEW_RECORD"
     if days_until_appointment <= 2:
         return "SEND_REMINDER"
     return "NO_ACTION"
@@ -37,6 +39,8 @@ def determine_action(appointment_date: date, missing_documents: set[str]) -> str
 def process_applications(input_file: Path, output_file: Path) -> None:
     with input_file.open("r", encoding="utf-8", newline="") as infile:
         reader = csv.DictReader(infile)
+        if not reader.fieldnames:
+            raise ValueError("Input CSV must include a header row.")
         records = []
 
         for row in reader:
@@ -56,8 +60,7 @@ def process_applications(input_file: Path, output_file: Path) -> None:
                     "action": action,
                 }
             )
-
-    fieldnames = [*reader.fieldnames, "missing_documents", "action"] if reader.fieldnames else []
+        fieldnames = [*reader.fieldnames, "missing_documents", "action"]
 
     with output_file.open("w", encoding="utf-8", newline="") as outfile:
         writer = csv.DictWriter(outfile, fieldnames=fieldnames)
