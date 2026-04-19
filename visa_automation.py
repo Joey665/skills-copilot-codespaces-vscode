@@ -40,7 +40,7 @@ def process_applications(input_file: Path, output_file: Path) -> None:
     with input_file.open("r", encoding="utf-8", newline="") as infile:
         reader = csv.DictReader(infile)
         if not reader.fieldnames:
-            raise ValueError("Input CSV must include a header row.")
+            raise ValueError("Input CSV is missing column headers or is empty.")
         records = []
 
         for row in reader:
